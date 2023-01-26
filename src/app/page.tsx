@@ -1,91 +1,103 @@
-import Image from 'next/image'
-import { Inter } from '@next/font/google'
-import styles from './page.module.css'
+"use client";
+import styles from "./page.module.css";
+import GalliMap from "@/components/GallliMap";
+import Image from "next/image";
+import { ChangeEvent, useCallback, useState } from "react";
+import { LatLngExpression } from "leaflet";
+import { useDisclosure } from "@/hooks/useDisclosure";
 
-const inter = Inter({ subsets: ['latin'] })
+const suggestions = [
+  {
+    label: "Lazimpat, Kathmandu",
+    latlng: {
+      lat: 27.72275882633604,
+      lng: 85.32112777233124,
+    },
+  },
+  {
+    label: "Amrit Science Campus, Ascol",
+    latlng: {
+      lat: 27.717606440342966,
+      lng: 85.31279146671295,
+    },
+  },
+];
 
 export default function Home() {
+  const center: LatLngExpression = [27.715953, 85.31675];
+  const { isOpen, onClose, onOpen } = useDisclosure();
+  const [address, setAddress] = useState<string>("");
+  const [marker, setMarker] = useState<LatLngExpression>(center);
+  const fetchLocation = useCallback(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          setMarker([lat, lng]);
+        },
+        (e) => {
+          alert("Location access denied. Please enable your location.");
+        }
+      );
+    } else {
+      return alert("Geolocation is not supported by this browser.");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
+      <GalliMap center={marker}>
+        <GalliMap.ChangeView center={marker} setCenter={setMarker} />
+      </GalliMap>
+      <div className={styles.searchBoxContainer}>
+        <div className={styles.searchBoxWrapper}>
+          <input
+            type="text"
+            placeholder="Search your favourite places"
+            onFocus={onOpen}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setAddress(e.target.value)
+            }
+            value={address}
+          />
+          <button onClick={fetchLocation}>
             <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
+              src="/current-location.svg"
+              alt="Current Location"
+              layout="fixed"
+              height={25}
+              width={20}
             />
-          </a>
+          </button>
+          {isOpen && (
+            <div className={styles.suggestionContainer}>
+              <ul>
+                {suggestions.map((suggeston, index) => (
+                  <li
+                    onClick={() => {
+                      setMarker([suggeston.latlng.lat, suggeston.latlng.lng]);
+                      setAddress(suggeston.label);
+                      onClose();
+                    }}
+                    key={index}
+                    className={styles.suggestion}
+                  >
+                    <Image
+                      src="/pin.svg"
+                      alt="pin"
+                      height={15}
+                      width={15}
+                      layout="fixed"
+                    />
+                    <span>{suggeston.label}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-        <div className={styles.thirteen}>
-          <Image src="/thirteen.svg" alt="13" width={40} height={31} priority />
-        </div>
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://beta.nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
       </div>
     </main>
-  )
+  );
 }
