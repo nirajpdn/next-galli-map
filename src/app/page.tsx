@@ -8,7 +8,8 @@ import { useDisclosure } from "@/hooks/useDisclosure";
 import dynamic from "next/dynamic";
 const GalliMap = dynamic(() => import("@/components/GallliMap"), {
   ssr: false,
-});
+}) as any;
+
 const suggestions = [
   {
     label: "Lazimpat, Kathmandu",
