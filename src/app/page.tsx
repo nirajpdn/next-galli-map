@@ -6,9 +6,10 @@ import { ChangeEvent, useCallback, useState } from "react";
 import { LatLngExpression } from "leaflet";
 import { useDisclosure } from "@/hooks/useDisclosure";
 import dynamic from "next/dynamic";
+import ChangeView from "@/components/ChangeView";
 const GalliMap = dynamic(() => import("@/components/GallliMap"), {
   ssr: false,
-}) as any;
+});
 
 const suggestions = [
   {
@@ -52,7 +53,7 @@ export default function Home() {
   return (
     <main className={styles.main}>
       <GalliMap center={marker}>
-        <GalliMap.ChangeView center={marker} setCenter={setMarker} />
+        <ChangeView center={marker} setCenter={setMarker} />
       </GalliMap>
       <div className={styles.searchBoxContainer}>
         <div className={styles.searchBoxWrapper}>
