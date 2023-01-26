@@ -1,11 +1,14 @@
 "use client";
 import styles from "./page.module.css";
-import GalliMap from "@/components/GallliMap";
+
 import Image from "next/image";
 import { ChangeEvent, useCallback, useState } from "react";
 import { LatLngExpression } from "leaflet";
 import { useDisclosure } from "@/hooks/useDisclosure";
-
+import dynamic from "next/dynamic";
+const GalliMap = dynamic(() => import("@/components/GallliMap"), {
+  ssr: false,
+});
 const suggestions = [
   {
     label: "Lazimpat, Kathmandu",
