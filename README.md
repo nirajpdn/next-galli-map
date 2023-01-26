@@ -1,1 +1,1 @@
-## Galli map integrated with Reect
+## Galli map integrated with React
